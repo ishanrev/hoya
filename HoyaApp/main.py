@@ -59,11 +59,10 @@ def upload(chunks):
 # -------------------------------------------------
 
 
-llm = ChatOpenAI(model="gpt-3.5-turbo")
 def createProcess(llm):
 
     prompt = ChatPromptTemplate.from_messages([
-        # MessagesPlaceholder(variable_name="chat_history"),
+        MessagesPlaceholder(variable_name="chat_history"),
         ("system", "Answer the following question based on the following context {context}"),
         ("human", "{input}")
     ]) 
@@ -75,17 +74,17 @@ def create_retriever(db, document_chain, llm):
 
     retriever = db.as_retriever()
 
-    # retriever_prompt = ChatPromptTemplate.from_messages([
-    #     MessagesPlaceholder(variable_name="chat_history"),
-    #     ("human", "{input}"),
-    #     ("human", "Given the above conversation, generate a search query to look up in order to get information relevant to the conversation")
-    # ])
+    retriever_prompt = ChatPromptTemplate.from_messages([
+        MessagesPlaceholder(variable_name="chat_history"),
+       ("human", "Given are the previous conversation between you and the user and following context: {context}"),
+       ("human", "give me a response to this question/statement: {input}")
+    ])
 
-    # history_aware_retriever = create_history_aware_retriever(llm = llm, retriever = retriever, prompt = retriever_prompt)
-    # retrieval_chain = create_retrieval_chain(
-    #     history_aware_retriever,
-    #     document_chain    
-    # )
+    history_aware_retriever = create_history_aware_retriever(llm = llm, retriever = retriever, prompt = retriever_prompt)
+    retrieval_chain = create_retrieval_chain(
+        history_aware_retriever,
+        document_chain    
+    )
     
     retrieval_chain = create_retrieval_chain(retriever, document_chain)
 

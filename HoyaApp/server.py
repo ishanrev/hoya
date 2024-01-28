@@ -1,3 +1,7 @@
+from flask import Flask, request
+from flask_cors import CORS
+from flask_restful import Resource, Api
+
 import os
 import argparse
 import glob
@@ -18,7 +22,6 @@ from azure_openai import *
 from config import *
 
 from main import *
-    
 
 def ask(user_input, conversation):
     
@@ -66,33 +69,55 @@ def ask(user_input, conversation):
                             skip=skip,
                             top=3)
     
-    print("/////////////////////////////////////////////////") 
 
     # results = [ doc[KB_FIELDS_CONTENT].replace("\n", "").replace("\r", "") for doc in r]
     results = [doc[KB_FIELDS_SOURCEPAGE] + ": " + doc[KB_FIELDS_CONTENT].replace("\n", "").replace("\r", "") for doc in r]
     content = "\n".join(results)
     
+    print("*******************")
+    print(conversation)
 
     # Here we make a conversational chatbot
 
-    references =[]
-    for result in results:
-        references.append(result.split(":")[0])
-    st.markdown("### References:")
-    st.write(" , ".join(set(references)))
+    # references =[]
+    # for result in results:
+    #     references.append(result.split(":")[0])
+    # st.markdown("### References:")
+    # st.write(" , ".join(set(references)))
 
     prompt = create_prompt(content,user_input, conversation)            
-    # conversation.append({"role": "assistant", "content": prompt})
+    conversation.append({"role": "assistant", "content": prompt})
     # conversation.append({"role": "user", "content": user_input})
     reply = generate_answer(conversation)
     # conversation.append({"role": "assistant", "content": reply})
 
-    return reply,
+    return reply
 
 
-response, conversation = ask("What is a stomata", [])
-print(response)
-print(conversation)
+app = Flask(__name__)
+CORS(app, origins='*')  # Enable CORS for all routes
+api = Api(app)
+
+conversationGlobal = []
+
+class HelloWorld(Resource):
+    def get(self):
+        return "hello world"
+class Bot(Resource):
+    def post(self):
+        json_data = request.get_json(force=True)
+        question = json_data['question']
+        conversation = json_data['conversation']
+        
+        print(question, conversation)
+        
+        response = ask(question, conversation) 
+        
+        return {"question": question, "response": response}
     
-    
+api.add_resource(HelloWorld, '/')
+api.add_resource(Bot, '/ask')
 
+
+if __name__ == '__main__':
+    app.run(debug=True)
