@@ -21,7 +21,7 @@ def create_prompt(context,query, conversation):
     header = ""
     
     if len(conversation)>0:   
-      header = " You are a bot trying to help students by providing them with information regarding certain universities \n Based on that remember the university the user is trying to find more information on throughout the conversation \n The user can ask you various information regarding the tuition, courses, programs application dates and you must consolidate all information and give suitable responses. \n When asked you must also compare between universities and give suggestions to the user\n ---------\n Consider the following previous exchanges between you and the user: "+ str 
+      header = " You are a bot trying to help students by providing them with information regarding certain universities \n Based on that remember the university the user is trying to find more information on throughout the conversation \n The user can ask you various information regarding the tuition, courses, programs application dates and you must consolidate all information and give suitable responses. \n When asked you must also compare between universities and give suggestions to the user. \n ---------\n Consider the following previous exchanges between you and the user: "+ str 
     
     header+="Based on the given context: \n" + context + " \n\n Give a response to the following statement and make sure to ask the user for more informaiton if insufficient information has been provided: " + query 
     
